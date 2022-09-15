@@ -1,17 +1,24 @@
 import express, { Request, Response } from 'express';
-import { checkUserId } from '../middleware/checkUser';
+import { checkUserId } from '../middleware/checkJwt';
 import { user } from '../db';
+import CommentRoutes from './comment';
 
 const app = express.Router();
 
-app.post('/', checkUserId, (req: Request, res: Response) => {
+app.use(checkUserId);
+app.use('/comment', CommentRoutes);
+
+app.post('/', (req: Request, res: Response) => {
   /*  
     client is expected to send:
     {content: ""}
   */
 
   const postContent = req.body;
-  const userPosts = user[res.user].posts;
+
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
 
   userPosts[Object.values(userPosts).length] = {
     content: postContent,
@@ -22,7 +29,7 @@ app.post('/', checkUserId, (req: Request, res: Response) => {
   res.send('Post created successfully');
 });
 
-app.patch('/update-post', checkUserId, (req: Request, res: Response) => {
+app.patch('/update', (req: Request, res: Response) => {
   /*  
     client is expected to send:
     {id:   which is the post id
@@ -31,7 +38,10 @@ app.patch('/update-post', checkUserId, (req: Request, res: Response) => {
   */
 
   const post = req.body;
-  const userPosts = user[res.user].posts;
+
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
 
   userPosts[post.id] = {
     ...userPosts[post.id],
@@ -41,24 +51,42 @@ app.patch('/update-post', checkUserId, (req: Request, res: Response) => {
   res.send('Post updated successfully');
 });
 
-app.get('/view-post/:postId', checkUserId, (req: Request, res: Response) => {
+app.get('/view', (req: Request, res: Response) => {
   console.log('req.params: ', req.params);
   /*  
     client can send :
     {id:   which is the post id}  as query
   */
-  const userPosts = user[res.user].posts;
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
 
-  req.params ? res.send(userPosts[req.params.postId]) : res.send(userPosts);
+  res.send(userPosts);
 });
 
-app.delete('/delete-post', checkUserId, (req: Request, res: Response) => {
+app.get('/view/:postId', (req: Request, res: Response) => {
+  console.log('req.params: ', req.params);
+  /*  
+    client can send :
+    {id:   which is the post id}  as query
+  */
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
+
+  res.send(userPosts[req.params.postId]);
+});
+
+app.delete('/delete', (req: Request, res: Response) => {
   /*
     client is expected to send 
     {id: post id be deleted}
   */
   const { id: postId } = req.body;
-  const userPosts = user[res.user].posts;
+
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
 
   delete userPosts[postId];
 
@@ -66,14 +94,16 @@ app.delete('/delete-post', checkUserId, (req: Request, res: Response) => {
   res.send('post deleted successfully!');
 });
 
-app.patch('/like-post', checkUserId, (req: Request, res: Response) => {
+app.patch('/like', (req: Request, res: Response) => {
   /*
     client is expected to send 
     {id: post id be deleted}
   */
   const { id: postId } = req.body;
 
-  const userPosts = user[res.user].posts;
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
 
   userPosts[postId] = {
     ...userPosts[postId],
@@ -83,13 +113,16 @@ app.patch('/like-post', checkUserId, (req: Request, res: Response) => {
   res.send('post liked successfully');
 });
 
-app.patch('/unlike-post', checkUserId, (req: Request, res: Response) => {
+app.patch('/unlike', (req: Request, res: Response) => {
   /*
     client is expected to send 
     {id: post id be deleted}
   */
   const { id: postId } = req.body;
-  const userPosts = user[res.user].posts;
+
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
 
   userPosts[postId] = {
     ...userPosts[postId],
@@ -99,51 +132,12 @@ app.patch('/unlike-post', checkUserId, (req: Request, res: Response) => {
   res.send('post unliked successfully');
 });
 
-app.post('/comment', checkUserId, (req: Request, res: Response) => {
-  /*
-    client is expected to send 
-    {id: post id be deleted,
-      content: post content}
-  */
-
-  const { id: postId, content: postContent } = req.body;
-  const userPosts = user[res.user].posts;
-
-  userPosts[postId] = {
-    ...userPosts[postId],
-    comments: {
-      ...userPosts[postId].comments,
-      [Object.keys(userPosts[postId].comments).length + 1]: postContent
-    }
-  };
-  console.log('userPosts: ', userPosts);
-  res.send('comment added successfully');
-});
-
-app.delete('/delete-comment', checkUserId, (req: Request, res: Response) => {
-  /*
-    client is expected to send 
-    {id: post id be deleted,
-      comment: {
-        id: comment id
-      }
-    }
-  */
-
-  const {
-    id: postId,
-    comment: { id: commentId }
-  } = req.body;
-  const userPosts = user[res.user].posts;
-
-  delete userPosts[postId].comments[commentId];
-  console.log('comment: ', userPosts[postId]);
-  res.send('comment removed successfully');
-});
-
-app.get('/search-post', checkUserId, (req: Request, res: Response) => {
+app.get('/search', (req: Request, res: Response) => {
   const searchQuery = req.query.q;
-  const userPosts = user[res.user].posts;
+
+  const userPosts = Object.values(user).find(
+    user => user.username === req.user
+  ).posts;
 
   res.send(
     Object.values(userPosts).filter(item => item.content.includes(searchQuery))
