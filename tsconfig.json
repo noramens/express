@@ -101,7 +101,7 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */,
     "typeRoots": [
       "./node_module/@types",
-      "./types.d.ts"
+      "src/types.d.ts"
 ],
   }
 }
