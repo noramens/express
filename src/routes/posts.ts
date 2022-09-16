@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
-import { checkUserId } from '../middleware/checkJwt';
+import { checkToken } from '../middleware/checkJwt';
 import { user } from '../db';
 import CommentRoutes from './comment';
 
 const app = express.Router();
 
-app.use(checkUserId);
+app.use(checkToken);
 app.use('/comment', CommentRoutes);
 
 app.post('/', (req: Request, res: Response) => {
