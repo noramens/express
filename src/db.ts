@@ -1,10 +1,16 @@
 export const user = {
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5vcmEiLCJwYXNzd29yZCI6Ik5vcmExMjMiLCJpYXQiOjE2NjMyNTQ4ODAsImV4cCI6MTY2MzI1ODQ4MH0.2UguQ8UoiRUyFZnuNzuM8F4rle8hy572heaJclT52II':
-    { username: 'Nora', password: 'Nora123', posts: {} },
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5vcmEiLCJwYXNzd29yZCI6Ik5vcmExMjMiLCJlbWFpbCI6Im5vcmFAZ21haWwuY29tIiwiaWF0IjoxNjYzMzYxMjQ2LCJleHAiOjE2NjMzNjQ4NDZ9.P0cFl86XRDYylCN8y7Hk0QqI--RRDhu4Rpc3fa7wSw8':
+    {
+      username: 'Nora',
+      password: '$2b$10$Q0oBeAtio/YKNGUst8VUBevi2MkqGau7HfZ3e2g/fBJcRV0C58kuy',
+      email: 'nora@gmail.com',
+      posts: {}
+    },
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1heSIsInBhc3N3b3JkIjoiTWF5MTIzIiwiaWF0IjoxNjYzMjYyMTc0LCJleHAiOjE2NjMyNjU3NzR9.GLBeL2gt2xAOO9xvSd2BNfK69aEGeHRe5_wsB4E56Wk':
     {
       username: 'May',
       password: 'May123',
+      email: 'may@gmail.com',
       posts: {
         0: {
           content: 'this is my first post',
@@ -28,9 +34,12 @@ export const user = {
   '2': {
     username: 'Rex',
     password: 'Rex123',
+    email: 'rex@gmail.com',
     posts: {
       0: { content: 'Second user first post' },
       1: { content: 'Second user second post' }
     }
   }
 };
+
+export const refreshList = {};
