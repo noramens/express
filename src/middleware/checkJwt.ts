@@ -36,7 +36,10 @@ export const checkToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization.split(' ')[1];
 
   if (!token) {
-    res.json({ success: false, message: 'Error!Token was not provided.' });
+    return res.json({
+      success: false,
+      message: 'Error! Token was not provided.'
+    });
   }
 
   try {
@@ -49,6 +52,47 @@ export const checkToken = (req: Request, res: Response, next: NextFunction) => {
   }
 
   return next();
+};
+
+export const userSignUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const {
+    username: requestUserName,
+    password: requestPassword,
+    email: requestEmail
+  } = req.body;
+
+  if (requestPassword.length < 8) {
+    return res.status(400).json('Password must be at least 8 characters long');
+  }
+
+  if (!/\d/.test(requestPassword)) {
+    return res.status(400).json('Password must contain a number');
+  }
+
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(requestPassword)) {
+    return res.status(400).json('Invalid email');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(requestPassword, salt);
+
+  const token = generateAccessToken(
+    requestUserName,
+    hashedPassword,
+    requestEmail
+  );
+
+  user[token] = {
+    username: requestUserName,
+    password: hashedPassword,
+    email: requestEmail
+  };
+
+  next();
 };
 
 export const userSignIn = async (
@@ -128,5 +172,31 @@ export const refreshToken = (
   } else {
     return res.status(401).send("Can't refresh. Invalid Token");
   }
+  next();
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const currentUser = Object.values(user).find(
+    item => item.email === req.body.email
+  );
+
+  const token = req.headers.authorization.split(' ')[1];
+
+  if (!currentUser && token) {
+    return res.status(401).send('User does not exist');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+  user[token] = {
+    ...user[token],
+    password: hashedPassword
+  };
+
   next();
 };

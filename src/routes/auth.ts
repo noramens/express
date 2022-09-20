@@ -3,37 +3,21 @@ import bcrypt from 'bcrypt';
 
 import { user } from '../db';
 import { generateAccessToken } from '../middleware/checkJwt';
-import { userSignIn, refreshToken } from '../middleware/checkJwt';
+import {
+  userSignIn,
+  userSignUp,
+  refreshToken,
+  resetPassword
+} from '../middleware/checkJwt';
 
 const app = express.Router();
 
-app.post('/sign-up', async (req: Request, res: Response) => {
-  const {
-    username: requestUserName,
-    password: requestPassword,
-    email: requestEmail
-  } = req.body;
-
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(requestPassword, salt);
-
-  const token = generateAccessToken(
-    requestUserName,
-    hashedPassword,
-    requestEmail
-  );
-
-  user[token] = {
-    username: requestUserName,
-    password: hashedPassword,
-    email: requestEmail
-  };
-
+app.post('/sign-up', userSignUp, async (req: Request, res: Response) => {
   console.log(user);
 
   res.status(200).json({
     data: {
-      token,
+      token: req.token,
       message: 'User successfully signed up'
     }
   });
@@ -55,6 +39,10 @@ app.post('/refresh', refreshToken, (req: Request, res: Response) => {
     JWT: req.token,
     refresh: req.refreshToken
   });
+});
+
+app.post('/reset-password', resetPassword, (req: Request, res: Response) => {
+  res.send('Password reset successful');
 });
 
 export default app;
